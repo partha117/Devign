@@ -9,7 +9,7 @@ from tqdm import tqdm, trange
 from utils import debug
 
 
-def evaluate_loss(model, loss_function, num_batches, data_iter, cuda=False):
+def evaluate_loss(model, loss_function, num_batches, data_iter, cuda=False, device=None):
     model.eval()
     with torch.no_grad():
         _loss = []
@@ -18,7 +18,7 @@ def evaluate_loss(model, loss_function, num_batches, data_iter, cuda=False):
             graph, targets = data_iter()
             targets = targets.cuda() if cuda else targets
             with torch.no_grad():
-                predictions = model(graph, cuda=cuda)
+                predictions = model(graph, cuda=cuda, device=device)
             batch_loss = loss_function(predictions, targets)
             _loss.append(batch_loss.detach().cpu().item())
             predictions = predictions.detach().cpu()
@@ -36,7 +36,7 @@ def evaluate_loss(model, loss_function, num_batches, data_iter, cuda=False):
     pass
 
 
-def evaluate_metrics(model, loss_function, num_batches, data_iter, cuda):
+def evaluate_metrics(model, loss_function, num_batches, data_iter, cuda, device):
     model.eval()
     with torch.no_grad():
         _loss = []
@@ -44,7 +44,7 @@ def evaluate_metrics(model, loss_function, num_batches, data_iter, cuda):
         for _ in range(num_batches):
             graph, targets = data_iter()
             targets = targets.cuda() if cuda else targets
-            predictions = model(graph, cuda=cuda)
+            predictions = model(graph, cuda=cuda, device=device)
             batch_loss = loss_function(predictions, targets)
             _loss.append(batch_loss.detach().cpu().item())
             predictions = predictions.detach().cpu()
@@ -92,7 +92,7 @@ def train(model, dataset, max_steps, dev_every, loss_function, optimizer, save_p
             optimizer.step()
             if step_count % dev_every == (dev_every - 1):
                 valid_loss, valid_f1 = evaluate_loss(model, loss_function, dataset.initialize_train_batch(),
-                                                     dataset.get_next_train_batch)
+                                                     dataset.get_next_train_batch,cuda=cuda, device=device)
                 if valid_f1 > best_f1:
                     patience_counter = 0
                     best_f1 = valid_f1
@@ -117,7 +117,7 @@ def train(model, dataset, max_steps, dev_every, loss_function, optimizer, save_p
     torch.save(model.state_dict(), _save_file)
     _save_file.close()
     acc, pr, rc, f1 = evaluate_metrics(model, loss_function, dataset.initialize_train_batch(),
-                                       dataset.get_next_train_batch, cuda=cuda)
+                                       dataset.get_next_train_batch, cuda=cuda, device=device)
     debug('%s\tTest Accuracy: %0.2f\tPrecision: %0.2f\tRecall: %0.2f\tF1: %0.2f' % (
         save_path, acc, pr, rc, f1))
     debug('=' * 100)

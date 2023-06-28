@@ -27,6 +27,10 @@ class BatchGraph:
         for k in self.graphid_to_nodeids.keys():
             self.graphid_to_nodeids[k] = self.graphid_to_nodeids[k].cuda(
                 device=device)
+    def cpu(self, device=None):
+        self.graph = self.graph.to("cpu")
+        for k in self.graphid_to_nodeids.keys():
+            self.graphid_to_nodeids[k] = self.graphid_to_nodeids[k].cpu()
 
     def de_batchify_graphs(self, features=None):
         if features is None:
@@ -57,5 +61,6 @@ class GGNNBatchGraph(BatchGraph):
             self.cuda(device=device)
             return self.graph, features.cuda(device=device), edge_types.cuda(device=device)
         else:
+            self.cpu()
             return self.graph, features, edge_types
         pass
