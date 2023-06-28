@@ -23,7 +23,7 @@ class BatchGraph:
         self.num_of_subgraphs += 1
 
     def cuda(self, device=None):
-        self.graph.to(device)
+        self.graph = self.graph.to(device)
         for k in self.graphid_to_nodeids.keys():
             self.graphid_to_nodeids[k] = self.graphid_to_nodeids[k].cuda(
                 device=device)
@@ -52,6 +52,7 @@ class GGNNBatchGraph(BatchGraph):
     def get_network_inputs(self, cuda=False, device=None):
         features = self.graph.ndata['features']
         edge_types = self.graph.edata['etype']
+        print("from get network", cuda, device)
         if cuda:
             self.cuda(device=device)
             return self.graph, features.cuda(device=device), edge_types.cuda(device=device)
