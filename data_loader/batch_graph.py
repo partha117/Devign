@@ -23,8 +23,10 @@ class BatchGraph:
         self.num_of_subgraphs += 1
 
     def cuda(self, device=None):
+        self.graph.to(device)
         for k in self.graphid_to_nodeids.keys():
-            self.graphid_to_nodeids[k] = self.graphid_to_nodeids[k].cuda(device=device)
+            self.graphid_to_nodeids[k] = self.graphid_to_nodeids[k].cuda(
+                device=device)
 
     def de_batchify_graphs(self, features=None):
         if features is None:
