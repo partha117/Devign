@@ -79,17 +79,19 @@ if __name__ == '__main__':
         model = GGNNSum(input_dim=dataset.feature_size, output_dim=args.graph_embed_size,
                         num_steps=args.num_steps, max_edge_types=dataset.max_edge_type)
         if os.path.exists(model_dir + '/GGNNSumModel' + '-model.bin'):
-            model.load_state_dict(torch.load(model_dir + '/GGNNSumModel' + '-model.bin'))
+            model.load_state_dict(torch.load(
+                model_dir + '/GGNNSumModel' + '-model.bin'))
             debug('Loaded from previous')
     else:
         model = DevignModel(input_dim=dataset.feature_size, output_dim=args.graph_embed_size,
                             num_steps=args.num_steps, max_edge_types=dataset.max_edge_type)
         if os.path.exists(model_dir + '/DevignModel' + '-model.bin'):
-            model.load_state_dict(torch.load(model_dir + '/DevignModel' + '-model.bin'))
+            model.load_state_dict(torch.load(
+                model_dir + '/DevignModel' + '-model.bin'))
             debug('Loaded from previous')
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = model.to(device)
-    print(device)
+    # model = model.to(device)
+    # print(device)
 
     debug('Total Parameters : %d' % tally_param(model))
     debug('#' * 100)

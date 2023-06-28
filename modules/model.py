@@ -19,17 +19,21 @@ class DevignModel(nn.Module):
         self.maxpool2 = torch.nn.MaxPool1d(2, stride=2)
 
         self.concat_dim = input_dim + output_dim
-        self.conv_l1_for_concat = torch.nn.Conv1d(self.concat_dim, self.concat_dim, 3)
+        self.conv_l1_for_concat = torch.nn.Conv1d(
+            self.concat_dim, self.concat_dim, 3)
         self.maxpool1_for_concat = torch.nn.MaxPool1d(3, stride=2)
-        self.conv_l2_for_concat = torch.nn.Conv1d(self.concat_dim, self.concat_dim, 1)
+        self.conv_l2_for_concat = torch.nn.Conv1d(
+            self.concat_dim, self.concat_dim, 1)
         self.maxpool2_for_concat = torch.nn.MaxPool1d(2, stride=2)
 
         self.mlp_z = nn.Linear(in_features=self.concat_dim, out_features=1)
         self.mlp_y = nn.Linear(in_features=output_dim, out_features=1)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, batch, cuda=False):
-        graph, features, edge_types = batch.get_network_inputs(cuda=cuda)
+    def forward(self, batch, cuda=False, device=None):
+        print("from model", cuda)
+        graph, features, edge_types = batch.get_network_inputs(
+            cuda=cuda, device=device)
         outputs = self.ggnn(graph, features, edge_types)
         x_i, _ = batch.de_batchify_graphs(features)
         h_i, _ = batch.de_batchify_graphs(outputs)

@@ -20,7 +20,8 @@ class DataEntry:
         self.graph.add_nodes(self.num_nodes, data={'features': self.features})
         for s, _type, t in edges:
             etype_number = self.dataset.get_edge_type_number(_type)
-            self.graph.add_edge(s, t, data={'etype': torch.LongTensor([etype_number])})
+            self.graph.add_edges(
+                s, t, data={'etype': torch.LongTensor([etype_number])})
 
 
 class DataSet:
@@ -35,7 +36,8 @@ class DataSet:
         self.edge_types = {}
         self.max_etype = 0
         self.feature_size = 0
-        self.n_ident, self.g_ident, self.l_ident= load_default_identifiers(n_ident, g_ident, l_ident)
+        self.n_ident, self.g_ident, self.l_ident = load_default_identifiers(
+            n_ident, g_ident, l_ident)
         self.read_dataset(test_src, train_src, valid_src)
         self.initialize_dataset()
 
@@ -87,7 +89,8 @@ class DataSet:
     def initialize_train_batch(self, batch_size=-1):
         if batch_size == -1:
             batch_size = self.batch_size
-        self.train_batches = initialize_batch(self.train_examples, batch_size, shuffle=True)
+        self.train_batches = initialize_batch(
+            self.train_examples, batch_size, shuffle=True)
         return len(self.train_batches)
         pass
 

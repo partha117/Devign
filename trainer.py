@@ -71,6 +71,7 @@ def train(model, dataset, max_steps, dev_every, loss_function, optimizer, save_p
     best_model = None
     patience_counter = 0
     best_f1 = 0
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if cuda:
         model = model.cuda()
     else:
@@ -81,7 +82,7 @@ def train(model, dataset, max_steps, dev_every, loss_function, optimizer, save_p
             model.zero_grad()
             graph, targets = dataset.get_next_train_batch()
             targets = targets.cuda() if cuda else targets
-            predictions = model(graph, cuda=cuda)
+            predictions = model(graph, cuda=cuda, device=device)
             batch_loss = loss_function(predictions, targets)
             if log_every is not None and (step_count % log_every == log_every - 1):
                 debug('Step %d\t\tTrain Loss %10.3f' %
