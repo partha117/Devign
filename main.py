@@ -17,13 +17,14 @@ from utils import tally_param, debug
 if __name__ == '__main__':
     torch.manual_seed(1000)
     np.random.seed(1000)
+    path = "/project/def-m2nagapp/partha9/Devign/"
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_type', type=str, help='Type of the model (devign/ggnn)',
                         choices=['devign', 'ggnn'], default='ggnn')
     parser.add_argument('--dataset', type=str, required=False,
-                        help='Name of the dataset for experiment.', default="")
+                        help='Name of the dataset for experiment.', default=path)
     parser.add_argument('--input_dir', type=str, required=False,
-                        help='Input Directory of the parser', default="input_dir/")
+                        help='Input Directory of the parser', default=path)
     parser.add_argument('--node_tag', type=str,
                         help='Name of the node feature.', default='node_features')
     parser.add_argument('--graph_tag', type=str,
@@ -40,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int,
                         help='Batch Size for training', default=128)
     parser.add_argument('--max_iter', type=int,
-                        help='Maximum Iteration', default=3000)
+                        help='Maximum Iteration', default=1000000)
     args = parser.parse_args()
 
     if args.feature_size > args.graph_embed_size:
@@ -97,4 +98,4 @@ if __name__ == '__main__':
     model_name = '/GGNNSumModel' if args.model_type == 'ggnn' else "DevignModel"
     train(model=model, dataset=dataset, max_steps=args.max_iter, dev_every=128,
           loss_function=loss_function, optimizer=optim,
-          save_path=model_dir + model_name, max_patience=100, log_every=None, cuda=False)
+          save_path=model_dir + model_name, max_patience=100, log_every=None, cuda=True)
