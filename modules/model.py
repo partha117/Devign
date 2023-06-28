@@ -77,10 +77,10 @@ class GGNNSum(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, batch, cuda=False, device=None):
-        print("from model", cuda, device)
+        # print("from model", cuda, device)
         graph, features, edge_types = batch.get_network_inputs(
             cuda=cuda, device=device)
-        print(next(self.ggnn.parameters()).is_cuda, graph.device)
+        # print(next(self.ggnn.parameters()).is_cuda, graph.device)
         outputs = self.ggnn(graph, features, edge_types)
         h_i, _ = batch.de_batchify_graphs(outputs)
         ggnn_sum = self.classifier(h_i.sum(dim=1))

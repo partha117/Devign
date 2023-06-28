@@ -41,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int,
                         help='Batch Size for training', default=128)
     parser.add_argument('--max_iter', type=int,
-                        help='Maximum Iteration', default=1000000)
+                        help='Maximum Iteration', default=500000)
     args = parser.parse_args()
     CUDA = True
     if args.feature_size > args.graph_embed_size:
