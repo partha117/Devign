@@ -31,7 +31,6 @@ class DevignModel(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, batch, cuda=False, device=None):
-        print("from model", cuda)
         graph, features, edge_types = batch.get_network_inputs(
             cuda=cuda, device=device)
         outputs = self.ggnn(graph, features, edge_types)
@@ -77,8 +76,10 @@ class GGNNSum(nn.Module):
         self.classifier = nn.Linear(in_features=output_dim, out_features=1)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, batch, cuda=False):
-        graph, features, edge_types = batch.get_network_inputs(cuda=cuda)
+    def forward(self, batch, cuda=False, device=None):
+        print("from model", cuda)
+        graph, features, edge_types = batch.get_network_inputs(
+            cuda=cuda, device=device)
         outputs = self.ggnn(graph, features, edge_types)
         h_i, _ = batch.de_batchify_graphs(outputs)
         ggnn_sum = self.classifier(h_i.sum(dim=1))
