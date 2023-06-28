@@ -8,4 +8,4 @@
 #SBATCH --output=%x-%j.out
 #SBATCH --mail-type=ALL
 export LD_LIBRARY_PATH=$EBROOTCUDA/lib64:$LD_LIBRARY_PATH
-export CUDA_LAUNCH_BLOCKING=1; python /home/partha9/Generative_Bug_Localization/Dolly_FineTune.py
+export CUDA_LAUNCH_BLOCKING=1; python /home/partha9/Devign/main.py
