@@ -11,10 +11,12 @@ from utils import load_default_identifiers, initialize_batch, debug
 
 
 class DataEntry:
-    def __init__(self, datset, num_nodes, features, edges, target):
+    def __init__(self, datset, num_nodes, features, edges, target, id=None):
         self.dataset = datset
         self.num_nodes = num_nodes
         self.target = target
+        if id is not None:
+            self.id = id
         self.graph = DGLGraph()
         self.features = torch.FloatTensor(features)
         self.graph.add_nodes(self.num_nodes, data={'features': self.features})
@@ -25,13 +27,14 @@ class DataEntry:
 
 
 class DataSet:
-    def __init__(self, train_src, valid_src=None, test_src=None, batch_size=32, n_ident=None, g_ident=None, l_ident=None):
+    def __init__(self, train_src, valid_src=None, test_src=None, batch_size=32, n_ident=None, g_ident=None, l_ident=None, return_feature=False):
         self.train_examples = []
         self.valid_examples = []
         self.test_examples = []
         self.train_batches = []
         self.valid_batches = []
         self.test_batches = []
+        self.return_feature = return_feature
         self.batch_size = batch_size
         self.edge_types = {}
         self.max_etype = 0
@@ -51,7 +54,11 @@ class DataSet:
         with open(train_src) as fp:
             train_data = json.load(fp)
             for entry in tqdm(train_data):
-                example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]), features=entry[self.n_ident],
+                if self.return_feature:
+                    example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]), features=entry[self.n_ident],
+                                        edges=entry[self.g_ident], target=entry[self.l_ident][0][0], id = entry['id'])
+                else:
+                    example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]), features=entry[self.n_ident],
                                     edges=entry[self.g_ident], target=entry[self.l_ident][0][0])
                 if self.feature_size == 0:
                     self.feature_size = example.features.size(1)
@@ -62,18 +69,28 @@ class DataSet:
             with open(valid_src) as fp:
                 valid_data = json.load(fp)
                 for entry in tqdm(valid_data):
-                    example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]),
-                                        features=entry[self.n_ident],
-                                        edges=entry[self.g_ident], target=entry[self.l_ident][0][0])
+                    if self.return_feature:
+                        example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]),
+                                            features=entry[self.n_ident],
+                                            edges=entry[self.g_ident], target=entry[self.l_ident][0][0], id=entry['id'])
+                    else:
+                        example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]),
+                                            features=entry[self.n_ident],
+                                            edges=entry[self.g_ident], target=entry[self.l_ident][0][0])
                     self.valid_examples.append(example)
         if test_src is not None:
             debug('Reading Test File!')
             with open(test_src) as fp:
                 test_data = json.load(fp)
                 for entry in tqdm(test_data):
-                    example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]),
-                                        features=entry[self.n_ident],
-                                        edges=entry[self.g_ident], target=entry[self.l_ident][0][0])
+                    if self.return_feature:
+                        example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]),
+                                            features=entry[self.n_ident],
+                                            edges=entry[self.g_ident], target=entry[self.l_ident][0][0], id=entry['id'])
+                    else:
+                        example = DataEntry(datset=self, num_nodes=len(entry[self.n_ident]),
+                                            features=entry[self.n_ident],
+                                            edges=entry[self.g_ident], target=entry[self.l_ident][0][0])
                     self.test_examples.append(example)
 
     def get_edge_type_number(self, _type):
@@ -114,6 +131,9 @@ class DataSet:
         batch_graph = GGNNBatchGraph()
         for entry in taken_entries:
             batch_graph.add_subgraph(copy.deepcopy(entry.graph))
+        if self.return_feature:
+            ids = [e.id for e in taken_entries]
+            return batch_graph, torch.FloatTensor(labels), torch.FloatTensor(ids)
         return batch_graph, torch.FloatTensor(labels)
 
     def get_next_train_batch(self):
