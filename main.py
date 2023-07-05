@@ -33,7 +33,7 @@ if __name__ == '__main__':
                         help='Name of the label feature.', default='targets')
 
     parser.add_argument('--feature_size', type=int,
-                        help='Size of feature vector for each node', default=169)
+                        help='Size of feature vector for each node', default=100)
     parser.add_argument('--graph_embed_size', type=int,
                         help='Size of the Graph Embedding', default=200)
     parser.add_argument('--num_steps', type=int,
